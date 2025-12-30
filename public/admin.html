@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Movie - CineRate Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">🎬 CineRate</h1>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="admin.html">Add Movie</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h2>Add New Movie</h2>
+        <p style="text-align: center; color: #ff6b00; margin-bottom: 1.5rem;">Admin Panel</p>
+        
+        <div id="errorMessage" class="error" style="display: none;"></div>
+        <div id="successMessage" class="success" style="display: none;"></div>
+        
+        <form id="addMovieForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Movie Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter movie title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="genre">Genre:</label>
+                <input type="text" id="genre" name="genre" placeholder="e.g., Action, Drama, Comedy" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="release_year">Release Year:</label>
+                <input type="number" id="release_year" name="release_year" placeholder="e.g., 2024" required>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Movie Poster Image:</label>
+                <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/gif,image/webp">
+                <p style="font-size: 0.85rem; color: #888; margin-top: 0.5rem;">Supported formats: JPEG, PNG, GIF, WebP (Max 5MB)</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="6" placeholder="Enter movie description..." required></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">Add Movie</button>
+        </form>
+        
+        <p style="margin-top: 2rem; text-align: center;"><a href="index.html" style="color: #ff6b00;">Back to Home</a></p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 CineRate - Movie Review Site. All rights reserved.</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Check if user is logged in and is admin
+        window.addEventListener('load', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user || !user.is_admin) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        document.getElementById('addMovieForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            
+            const formData = new FormData(document.getElementById('addMovieForm'));
+            
+            try {
+                const response = await fetch('/api/movies', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('successMessage').textContent = 'Movie added successfully!';
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('addMovieForm').reset();
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    document.getElementById('errorMessage').textContent = data.error;
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error adding movie:', error);
+                document.getElementById('errorMessage').textContent = 'An error occurred';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

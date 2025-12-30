@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details - CineRate</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">🎬 CineRate</h1>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li id="addMovieLink" style="display: none;"><a href="admin.html">Add Movie</a></li>
+                <li id="profileLink" style="display: none;"><a href="profile.html">Profile</a></li>
+                <li id="logoutLink" style="display: none;"><a href="#" onclick="logout()">Logout</a></li>
+                <li id="loginLink"><a href="login.html">Login</a></li>
+                <li id="registerLink"><a href="register.html">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="margin: 2rem 0; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+            <input type="text" id="searchInput" placeholder="Search by title or genre..." style="padding: 0.7rem; border-radius: 4px; border: 1px solid #ff6b00; background: #1a1a1a; color: #e0e0e0; width: 300px;">
+            <button id="searchBtn" onclick="performSearch()" style="padding: 0.7rem 1.5rem; background-color: #ff6b00; color: #000; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Search</button>
+            <a href="index.html" style="padding: 0.7rem 1rem; background-color: #555; color: #fff; border: none; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-block;">Clear</a>
+        </div>
+
+        <div class="movie-detail" id="movieDetail">
+            <p style="text-align: center;">Loading...</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 CineRate - Movie Review Site. All rights reserved.</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/movie-detail.js"></script>
+</body>
+</html>

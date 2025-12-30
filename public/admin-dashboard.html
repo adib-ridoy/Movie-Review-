@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CineRate</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">🎬 CineRate</h1>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="admin-dashboard.html">Admin Dashboard</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Menu</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" onclick="showSection('dashboard')" class="menu-item active">📊 Dashboard</a></li>
+                <li><a href="#" onclick="showSection('add-movie')" class="menu-item">➕ Add Movie</a></li>
+                <li><a href="#" onclick="showSection('manage-movies')" class="menu-item">🎬 Manage Movies</a></li>
+                <li><a href="#" onclick="showSection('stats')" class="menu-item">📈 Statistics</a></li>
+            </ul>
+        </aside>
+
+        <main class="admin-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <h2>Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Movies</h3>
+                        <p class="stat-number" id="totalMovies">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Reviews</h3>
+                        <p class="stat-number" id="totalReviews">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <p class="stat-number" id="totalUsers">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Avg Rating</h3>
+                        <p class="stat-number" id="avgRating">0</p>
+                    </div>
+                </div>
+                <div class="recent-movies">
+                    <h3>Recently Added Movies</h3>
+                    <div id="recentMoviesList" class="movies-list">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Movie Section -->
+            <section id="add-movie" class="content-section">
+                <h2>Add New Movie</h2>
+                <div id="addMovieError" class="error" style="display: none;"></div>
+                <div id="addMovieSuccess" class="success" style="display: none;"></div>
+                
+                <form id="addMovieForm" enctype="multipart/form-data" class="admin-form">
+                    <div class="form-group">
+                        <label for="title">Movie Title *</label>
+                        <input type="text" id="title" name="title" placeholder="Enter movie title" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="genre">Genre *</label>
+                            <input type="text" id="genre" name="genre" placeholder="e.g., Action, Drama, Comedy" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="release_year">Release Year *</label>
+                            <input type="number" id="release_year" name="release_year" placeholder="e.g., 2024" min="1800" max="2050" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="image">Movie Poster Image</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/gif,image/webp">
+                            <p style="font-size: 0.85rem; color: #888; margin-top: 0.5rem;">Supported formats: JPEG, PNG, GIF, WebP (Max 5MB)</p>
+                        </div>
+                        <div id="imagePreview" class="image-preview" style="display: none;">
+                            <img id="previewImg" src="" alt="Preview">
+                            <button type="button" onclick="clearImagePreview()" class="btn-clear">Clear</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" name="description" rows="6" placeholder="Enter movie description..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Add Movie</button>
+                </form>
+            </section>
+
+            <!-- Manage Movies Section -->
+            <section id="manage-movies" class="content-section">
+                <h2>Manage Movies</h2>
+                <div class="manage-controls">
+                    <input type="search" id="searchMovie" placeholder="Search movies...">
+                    <button onclick="loadMovies()" class="btn-refresh">🔄 Refresh</button>
+                    <button onclick="assignPosters()" class="btn-refresh" title="Match filenames to titles and set posters">🖼️ Auto‑Link Posters</button>
+                </div>
+                
+                <div id="moviesTable" class="movies-table">
+                    <p>Loading movies...</p>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section id="stats" class="content-section">
+                <h2>Statistics</h2>
+                <div class="stats-detailed">
+                    <div class="stat-box">
+                        <h3>Top Rated Movies</h3>
+                        <div id="topRatedMovies" class="stat-list">Loading...</div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Most Reviewed Movies</h3>
+                        <div id="mostReviewedMovies" class="stat-list">Loading...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Edit Movie Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Movie</h2>
+            <form id="editMovieForm" enctype="multipart/form-data" class="admin-form">
+                <input type="hidden" id="editMovieId" name="movie_id">
+                
+                <div class="form-group">
+                    <label for="editTitle">Movie Title *</label>
+                    <input type="text" id="editTitle" name="title" placeholder="Enter movie title" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editGenre">Genre *</label>
+                        <input type="text" id="editGenre" name="genre" placeholder="e.g., Action, Drama, Comedy" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editReleaseYear">Release Year *</label>
+                        <input type="number" id="editReleaseYear" name="release_year" placeholder="e.g., 2024" min="1800" max="2050" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editDescription">Description *</label>
+                    <textarea id="editDescription" name="description" rows="6" placeholder="Enter movie description..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editImage">Movie Poster Image</label>
+                    <input type="file" id="editImage" name="image" accept="image/jpeg,image/png,image/gif,image/webp">
+                    <p style="font-size: 0.85rem; color: #888; margin-top: 0.5rem;">Leave empty to keep current image</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="submit" class="submit-btn">Update Movie</button>
+                    <button type="button" onclick="closeEditModal()" class="btn-cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 CineRate - Movie Review Site. All rights reserved.</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
